@@ -1,0 +1,82 @@
+:root {
+  --app-bg: #f0f4f8;
+  --app-bg-soft: #f8fafc;
+  --app-surface: rgba(255, 255, 255, 0.85);
+  --app-surface-strong: #ffffff;
+  --app-surface-muted: #f1f5f9;
+  --app-border: rgba(59, 130, 246, 0.15);
+  --app-border-strong: rgba(59, 130, 246, 0.25);
+  --app-text: #1e293b;
+  --app-text-secondary: #64748b;
+  --app-heading: #0f172a;
+  --app-primary: #3b82f6;
+  --app-primary-deep: #2563eb;
+  --app-primary-soft: rgba(59, 130, 246, 0.1);
+  --app-danger-soft: rgba(239, 68, 68, 0.12);
+  --app-success-soft: rgba(34, 197, 94, 0.12);
+  --app-shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.06);
+  --app-shadow-md: 0 12px 32px rgba(15, 23, 42, 0.05);
+  --app-shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.03);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--app-text);
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.08), transparent 22%),
+    linear-gradient(180deg, #f8fafc 0%, var(--app-bg) 48%, #e2e8f0 100%);
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  background: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#app {
+  min-height: 100vh;
+}

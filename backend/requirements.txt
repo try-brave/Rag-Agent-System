@@ -1,0 +1,45 @@
+# ============================================================
+# RAG Agent System - Python 依赖锁定（LangChain / LangGraph 1.x）
+# 安装：pip install -r requirements.txt
+# Python: 3.10+
+# ============================================================
+
+# ---- Agent / 编排（必须 1.x）----
+langchain>=1.2.10
+langchain-core>=1.2.10
+langchain-community>=0.1.0
+langgraph>=1.0.10
+langgraph-checkpoint-postgres>=1.0.0
+
+# ---- LLM / Embedding（通义千问 DashScope）----
+langchain-dashscope>=0.1.0
+
+# ---- 向量库 Milvus ----
+langchain-milvus>=0.1.0
+pymilvus>=2.4.0
+
+# ---- 关系库 PostgreSQL ----
+SQLAlchemy>=2.0
+psycopg[binary]>=3.1
+alembic>=1.13
+
+# ---- 缓存 / 会话 ----
+redis>=5.0
+
+# ---- 配置 / Web 框架 ----
+pydantic>=2.0
+pydantic-settings>=2.0
+python-dotenv>=1.0
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+
+# ---- 文档解析（轻量，无 OCR）----
+pypdf>=4.0
+python-docx>=1.1
+markdown>=3.5
+chardet>=5.0
+
+# ---- 混合检索 BM25 ----
+rank-bm25>=0.2
+jieba>=0.42
