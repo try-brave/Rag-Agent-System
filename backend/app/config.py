@@ -38,8 +38,15 @@ class Settings(BaseSettings):
     app_version: str = '0.1.0'
     app_env: str = 'development'
     debug: bool = False
+    app_host: str = '0.0.0.0'
+    app_port: int = 8000
     api_v1_prefix: str = '/api/v1'
-    allowed_origins: list[str] = Field(default_factory=lambda: ['http://localhost:5173'])
+    allowed_origins: list[str] = Field(default_factory=lambda: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174',
+    ])
     storage_root: str = Field(default='storage', alias='STORAGE_ROOT')
     upload_dir_name: str = Field(default='uploads', alias='UPLOAD_DIR_NAME')
     max_upload_size_mb: int = Field(default=20, alias='MAX_UPLOAD_SIZE_MB')
@@ -64,7 +71,7 @@ class Settings(BaseSettings):
     # 关系库 / 缓存 / 联网检索 配置
     # ------------------------------
     postgres_dsn: str = Field(alias='POSTGRES_DSN')
-    redis_url: str = Field(alias='REDIS_URL')
+    redis_url: str | None = Field(default=None, alias='REDIS_URL')
     bocha_api_key: str | None = Field(default=None, alias='BOCHA_API_KEY')
 
     # ------------------------------

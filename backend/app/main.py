@@ -63,7 +63,7 @@ def _build_health_response() -> HealthResponse:
         milvus_error = str(exc)
 
     return HealthResponse(
-        ok=postgres_ok and redis_ok and milvus_ok,
+        ok=postgres_ok and milvus_ok,
         services={
             'postgres': ServiceHealthItem(ok=postgres_ok, error=postgres_error),
             'redis': ServiceHealthItem(ok=redis_ok, error=redis_error),

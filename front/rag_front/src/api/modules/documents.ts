@@ -19,6 +19,18 @@ export interface UploadDocumentPayload {
   preferred_splitter?: string | null
 }
 
+export interface BatchUploadPayload {
+  files: File[]
+  knowledge_base: string
+  preferred_splitter?: string | null
+}
+
+export interface BatchUploadItem {
+  document: DocumentItem | null
+  message: string
+  error: string | null
+}
+
 export async function fetchDocuments(): Promise<DocumentItem[]> {
   const { data } = await http.get<DocumentItem[]>('/documents')
   return data
@@ -43,6 +55,22 @@ export async function uploadDocument(payload: UploadDocumentPayload): Promise<Do
   }
 
   const { data } = await http.post<DocumentIngestResponse>('/documents/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data
+}
+
+export async function batchUploadDocuments(payload: BatchUploadPayload): Promise<BatchUploadItem[]> {
+  const formData = new FormData()
+  for (const file of payload.files) {
+    formData.append('files', file)
+  }
+  formData.append('knowledge_base', payload.knowledge_base)
+  if (payload.preferred_splitter) {
+    formData.append('preferred_splitter', payload.preferred_splitter)
+  }
+
+  const { data } = await http.post<BatchUploadItem[]>('/documents/batch-upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return data

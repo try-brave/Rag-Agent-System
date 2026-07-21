@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
@@ -60,6 +62,38 @@ async def upload_document(
         stored_path.unlink(missing_ok=True)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     return DocumentUploadResponse(document=DocumentItem.model_validate(document))
+
+
+@router.post('/batch-upload', response_model=List[DocumentUploadResponse], status_code=status.HTTP_201_CREATED)
+async def batch_upload_documents(
+    files: List[UploadFile] = File(description='批量上传的文档文件，支持 txt/md/pdf/doc/docx'),
+    knowledge_base: str = Form(default='default'),
+    preferred_splitter: str | None = Form(default=None),
+    db: Session = Depends(get_database),
+) -> List[DocumentUploadResponse]:
+    """批量上传文件并完成解析、切分与向量入库，返回每个文件的处理结果。"""
+    service = DocumentService(db)
+    results: List[DocumentUploadResponse] = []
+
+    for file in files:
+        stored_path, file_size = await save_upload_file(file)
+        try:
+            document = service.ingest_file(
+                file_path=stored_path,
+                original_filename=file.filename or stored_path.name,
+                knowledge_base=knowledge_base,
+                file_size=file_size,
+                preferred_splitter=preferred_splitter,
+            )
+            results.append(DocumentUploadResponse(document=DocumentItem.model_validate(document)))
+        except ValueError as exc:
+            stored_path.unlink(missing_ok=True)
+            results.append(DocumentUploadResponse(document=None, error=str(exc)))  # type: ignore[call-arg]
+        except Exception:
+            stored_path.unlink(missing_ok=True)
+            results.append(DocumentUploadResponse(document=None, error=f'{file.filename} 处理失败'))  # type: ignore[call-arg]
+
+    return results
 
 
 @router.get('', response_model=list[DocumentItem])

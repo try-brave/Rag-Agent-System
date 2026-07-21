@@ -13,6 +13,7 @@ langgraph-checkpoint-postgres>=1.0.0
 
 # ---- LLM / Embedding（通义千问 DashScope）----
 langchain-dashscope>=0.1.0
+tiktoken>=0.7.0
 
 # ---- 向量库 Milvus ----
 langchain-milvus>=0.1.0

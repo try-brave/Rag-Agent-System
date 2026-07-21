@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Check, Files, Refresh, Upload } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import type { UploadFile } from 'element-plus'
+import type { UploadFile, UploadFiles } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { notifyError } from '@/api/http'
+import type { BatchUploadItem } from '@/api/modules/documents'
 import { useDocumentStore } from '@/stores/documents'
 import { formatDateTime, formatFileSize } from '@/utils/format'
 
@@ -18,7 +19,7 @@ const textSubmitting = ref(false)
 const uploadForm = reactive({
   knowledge_base: 'default',
   preferred_splitter: '',
-  file: null as File | null,
+  files: [] as File[],
 })
 
 const textForm = reactive({
@@ -31,30 +32,45 @@ const textForm = reactive({
 const splitterOptions = computed(() => documentStore.splitters)
 const latestDocuments = computed(() => documentStore.documents.slice(0, 6))
 
-function handleUploadChange(uploadFile: UploadFile) {
-  uploadForm.file = uploadFile.raw || null
+function handleUploadChange(uploadFile: UploadFile, uploadFiles: UploadFiles) {
+  uploadForm.files = uploadFiles.map((f) => f.raw!).filter(Boolean)
+}
+
+function handleUploadRemove(_file: UploadFile, uploadFiles: UploadFiles) {
+  uploadForm.files = uploadFiles.map((f) => f.raw!).filter(Boolean)
 }
 
 async function submitUploadDocument() {
-  if (!uploadForm.file) {
+  if (uploadForm.files.length === 0) {
     ElMessage.warning('请先选择要上传的文档')
     return
   }
 
   uploading.value = true
   try {
-    const document = await documentStore.createUploadDocument({
-      file: uploadForm.file,
+    const results: BatchUploadItem[] = await documentStore.createBatchUploadDocuments({
+      files: uploadForm.files,
       knowledge_base: uploadForm.knowledge_base,
       preferred_splitter: uploadForm.preferred_splitter || null,
     })
-    ElMessage.success('文档已上传、解析并写入向量索引')
+
+    const successCount = results.filter((r) => !r.error).length
+    const failCount = results.filter((r) => r.error).length
+
+    if (failCount > 0) {
+      const errors = results.filter((r) => r.error).map((r) => r.error).join('; ')
+      ElMessage.warning(`上传完成：成功 ${successCount} 个，失败 ${failCount} 个。${errors}`)
+    } else {
+      ElMessage.success(`全部 ${successCount} 个文档已上传、解析并写入向量索引`)
+    }
+
     Object.assign(uploadForm, {
       knowledge_base: 'default',
       preferred_splitter: '',
-      file: null,
+      files: [],
     })
-    await router.push({ name: 'chunks', query: { documentId: document.id } })
+    // 跳转到文档列表而非单个文档的 chunks 页
+    await router.push({ name: 'documents' })
   } catch (error) {
     notifyError(error, '上传文档失败')
   } finally {
@@ -136,16 +152,16 @@ onMounted(async () => {
         <el-form-item label="文件选择">
           <el-upload
             drag
+            multiple
             :auto-upload="false"
             :show-file-list="true"
-            :limit="1"
             :on-change="handleUploadChange"
-            :on-remove="() => { uploadForm.file = null }"
+            :on-remove="handleUploadRemove"
           >
             <el-icon class="el-icon--upload"><Upload /></el-icon>
-            <div class="el-upload__text">拖拽文件到这里，或 <em>点击选择文件</em></div>
+            <div class="el-upload__text">拖拽文件到这里，或 <em>点击选择多个文件</em></div>
             <template #tip>
-              <div class="upload-tip">支持 `txt / md / pdf / docx`，提交后将自动解析、切分并写入 Milvus。</div>
+              <div class="upload-tip">支持 `txt / md / pdf / docx`，可同时选择多个文件批量入库。</div>
             </template>
           </el-upload>
         </el-form-item>

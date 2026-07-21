@@ -7,10 +7,12 @@ import {
   ingestTextDocument,
   rebuildDocumentIndex,
   uploadDocument,
+  batchUploadDocuments,
   deleteDocument,
 } from '@/api/modules/documents'
 import { notifyError } from '@/api/http'
 import type { ChunkItem, DocumentItem, SplitterOptionItem } from '@/types/api'
+import type { BatchUploadItem } from '@/api/modules/documents'
 
 export const useDocumentStore = defineStore('documents', {
   state: () => ({
@@ -62,6 +64,15 @@ export const useDocumentStore = defineStore('documents', {
       const response = await uploadDocument(payload)
       await this.loadDocuments()
       return response.document
+    },
+    async createBatchUploadDocuments(payload: {
+      files: File[]
+      knowledge_base: string
+      preferred_splitter?: string | null
+    }): Promise<BatchUploadItem[]> {
+      const results = await batchUploadDocuments(payload)
+      await this.loadDocuments()
+      return results
     },
     async refreshDocumentChunks(documentId: string) {
       this.chunkLoading = true

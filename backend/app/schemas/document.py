@@ -40,10 +40,11 @@ class DocumentIngestResponse(BaseModel):
 
 
 class DocumentUploadResponse(BaseModel):
-    """文件上传并入库响应。"""
+    """文件上传并入库响应，batch-upload 时单个失败会返回 error 而非抛异常。"""
 
-    document: DocumentItem
+    document: DocumentItem | None = Field(default=None, description='成功入库的文档信息')
     message: str = Field(default='Document uploaded and ingested successfully')
+    error: str | None = Field(default=None, description='此文件处理失败时的错误信息')
 
 
 class DocumentRebuildRequest(BaseModel):
