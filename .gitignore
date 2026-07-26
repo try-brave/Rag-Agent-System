@@ -43,3 +43,4 @@ output/
 
 # Uploaded files
 backend/storage/
+.env.bak
